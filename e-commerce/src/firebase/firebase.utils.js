@@ -3,7 +3,14 @@ import 'firebase/auth';
 import 'firebase/firestore';
 
 var firebaseConfig = {
-
+  apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
+  authDomain: "sigmadream-react-web.firebaseapp.com",
+  databaseURL: "https://sigmadream-react-web.firebaseio.com",
+  projectId: "sigmadream-react-web",
+  storageBucket: "sigmadream-react-web.appspot.com",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_SENDERID,
+  appId: process.env.REACT_APP_FIREBASE_APPID,
+  measurementId: "G-LEF9JBMX97"
 };
 
 export const createUserProfileDocument = async (userAuth, additionData) => {

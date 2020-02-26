@@ -25,3 +25,28 @@ $ yarn add react-router-dom
 상품 이미지 및 관련 데이터를 별도로 코딩하는게 너무 불편해서, 해당 코드는 다른 예제에서 복사해서 사용하는 것으로 결정하였음
 
 * Ref: https://github.com/jeffersonRibeiro/react-shopping-cart
+
+## Redux
+
+### Redux의 3가지 원칙
+
+```
+1. Single source of turth
+2. State is read only
+3. Changes using pure functions
+```
+
+### Redux 데이터 흐름
+
+```
+1. Action
+2. Root Reducer
+3. Store
+4. DOM
+```
+
+### FLUX 패턴
+
+```
+Action -> Dispatcher -> Store -> View
+```

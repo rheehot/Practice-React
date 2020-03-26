@@ -50,3 +50,155 @@ $ yarn add react-router-dom
 ```
 Action -> Dispatcher -> Store -> View
 ```
+
+## Redux 연습
+
+```
+$ yarn add redux redux-logger react-redux
+```
+
+* src/redux/store.js
+```
+import { createStore, applyMiddleware } from 'redux';
+import logger from 'redux-logger';
+
+import rootReducer from './root-reducer';
+
+const middlewares = [logger];
+
+const store = createStore(rootReducer, applyMiddleware(...middlewares));
+
+export default store;
+```
+
+* src/redux/root-reducer.js
+```
+import { combineReducers } from 'redux';
+
+import userReducer from './user/user.reducer';
+
+export default combineReducers({
+  user: userReducer
+});
+```
+
+* src/redux/user/user.actions.js
+```
+export const setCurrentUser = user => ({
+  type: 'SET_CURRENT_USER',
+  payload: user
+});
+```
+
+* src/redux/user/user.reducer.js
+```
+const INITIAL_STATE = {
+  currentUser: null
+};
+
+const userReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case 'SET_CURRENT_USER':
+      return {
+        ...state,
+        currentUser: action.payload
+      };
+    default:
+      return state;
+  }
+};
+
+export default userReducer;
+```
+
+* src/App.js
+``
+import React from "react";
+import { Route, Switch } from "react-router-dom";
+import { connect } from "react-redux";
+
+import "./App.css";
+
+import HomePage from "./pages/homepage/homepage.component";
+import ShopPage from "./pages/shop/shop.component";
+import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import Header from "./components/header/header.component.jsx";
+import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
+import { setCurrentUser } from "./redux/user/user.actions";
+
+class App extends React.Component {
+  
+  unsubscribeFromAuth = null;
+
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
+          });
+        });
+      }
+      setCurrentUser(userAuth);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth();
+  }
+
+  render() {
+    return (
+      <div>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/shop" component={ShopPage} />
+          <Route path="/signin" component={SignInAndSignUpPage} />
+        </Switch>
+      </div>
+    );
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default connect(null, mapDispatchToProps)(App);
+
+``
+
+* src/index.js
+```
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from 'react-redux';
+
+import store from './redux/store';
+
+import "./index.css";
+import App from "./App";
+// import * as serviceWorker from './serviceWorker';
+
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById("root")
+);
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+// serviceWorker.unregister();
+
+```
